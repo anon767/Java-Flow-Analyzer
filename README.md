@@ -10,6 +10,11 @@ for easy querying.
 The transitive closure of the Flow Graph is calculated using a logical programming Language written in Rust called *Crepe* .
 
 ## How To use?
+First build the tool:
+```
+cargo build
+```
+
 Place a TOML Configuration file inside your Java Project.
 
 E.g.
