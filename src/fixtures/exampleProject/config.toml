@@ -1,0 +1,13 @@
+project = "."
+
+[[nodes]]
+name = "node1"
+code = ".*println.*"
+
+[[nodes]]
+name = "node2"
+code = ".*animalSound.*"
+
+[[flows]]
+from = "node2"
+to = "node1"
