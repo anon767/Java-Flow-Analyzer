@@ -104,3 +104,9 @@ Source "@POST\n    \t@Path(\"/addsurvey/json\")\n        @Consumes(MediaType.APP
 Target "Method method = Class.forName(HealthSurvey.class.getName()).getDeclaredMethod(methodString);"
 ____________________________________
 ```
+
+## To run the tests
+
+```
+cargo test
+```

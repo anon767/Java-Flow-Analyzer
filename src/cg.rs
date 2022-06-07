@@ -352,7 +352,7 @@ class Main {
         let mut program = Program::new(INNER_CLASS_CALL);
         program.get_tree();
         let edges = calculate_cg(&vec![&program]);
-        assert_eq!(edges.len(), 3);
+        assert_eq!(edges.len(), 6);
         assert_eq!(edges[&50], vec![24], "The method invocation should point to the first statement of the function definition");
         show_edges(&program.tree, &edges);
     }
@@ -362,7 +362,7 @@ class Main {
         let mut program = Program::new(OUTER_CLASS_CALL_SINGLE_FILE);
         program.get_tree();
         let edges = calculate_cg(&vec![&program]);
-        assert_eq!(edges.len(), 6);
+        assert_eq!(edges.len(), 7);
         assert_eq!(edges[&38], vec![78], "myCar.fullThrottle() should point to the fullThrottle() method");
         assert_eq!(edges[&48], vec![106], "myCar.speed(200) should point to the speed(int maxSpeed) method");
         show_edges(&program.tree, &edges);
@@ -373,7 +373,7 @@ class Main {
         let programs = Program::new_list(vec![OUTER_CLASS_CALL_MULTIPLE_FILES_DEFINITIONS, OUTER_CLASS_CALL_MULTIPLE_FILES]);
         let program_refs: Vec<&Program> = programs.iter().collect();
         let edges = calculate_cg(&program_refs);
-        assert_eq!(edges.len(), 3);
+        assert_eq!(edges.len(), 4);
         assert_eq!(edges[&152], vec![83], "The method invocation myDog.anomalSound should point to the animalSound() method of the Dog Class");
     }
 }
