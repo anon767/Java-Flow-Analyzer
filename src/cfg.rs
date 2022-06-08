@@ -11,7 +11,7 @@ fn create_links(parent: &ASTNode, until: usize, before_statement: Vec<usize>, st
     let mut id: usize = start_id;
     let mut before_statement = before_statement;
     while !done {
-        let node = parent.get_node_by_id(id);
+        let node = parent.get_node_by_id(id, true);
         if node.is_none() || id > until {
             done = true;
         } else {
@@ -55,7 +55,7 @@ fn create_branches(parent: &ASTNode, mut edges: Edges, start_id: usize) -> Edges
     let mut done = false;
     let mut id: usize = start_id;
     while !done {
-        let node = parent.get_node_by_id(id);
+        let node = parent.get_node_by_id(id, true);
         if node.is_none() {
             done = true;
         } else {
@@ -64,7 +64,7 @@ fn create_branches(parent: &ASTNode, mut edges: Edges, start_id: usize) -> Edges
                 | ASTIdentifier::WhileStatement | ASTIdentifier::DoStatement => {
                     let blocks = &node.unwrap().get_blocks();
                     for block in blocks {
-                        let statements = parent.get_node_by_id(block.clone()).unwrap().get_statements();
+                        let statements = parent.get_node_by_id(block.clone(), false).unwrap().get_statements();
                         add_link(&mut edges, statements[0], &vec![id]);
                         let tmp = edges[&id][0].clone();
                         add_link(&mut edges, tmp, &vec![statements[statements.len() - 1]]);
@@ -72,7 +72,7 @@ fn create_branches(parent: &ASTNode, mut edges: Edges, start_id: usize) -> Edges
                 }
                 ASTIdentifier::SwitchStatement => {
                     let blocks = &node.unwrap().get_blocks();
-                    let block = node.unwrap().get_node_by_id(blocks[0]);
+                    let block = node.unwrap().get_node_by_id(blocks[0], false);
                     let statements = get_first_statements_after_switch_label(&block.unwrap());
                     for statement in statements.clone() {
                         add_link(&mut edges, statement.clone(), &vec![id]);
@@ -83,12 +83,12 @@ fn create_branches(parent: &ASTNode, mut edges: Edges, start_id: usize) -> Edges
                 ASTIdentifier::TryStatement | ASTIdentifier::TryWithRessourceStatement => {
                     let catch_blocks = get_catch_blocks(&node.unwrap());
                     for catch_block in catch_blocks {
-                        let mut blocks = node.unwrap().get_node_by_id(catch_block).unwrap().get_blocks();
+                        let mut blocks = node.unwrap().get_node_by_id(catch_block, true).unwrap().get_blocks();
                         let new_blocks = &node.unwrap().get_blocks();
                         blocks.append(&mut new_blocks.clone());
 
                         for block in blocks {
-                            let statements = &node.unwrap().get_node_by_id(block).unwrap().get_statements();
+                            let statements = &node.unwrap().get_node_by_id(block, false).unwrap().get_statements();
                             if statements.len() > 0 {
                                 add_link(&mut edges, statements[0], &vec![id]);
                                 let tmp = edges[&id][0].clone();
@@ -152,7 +152,7 @@ pub fn get_functions(parent: &ASTNode) -> Vec<&ASTNode> {
     let mut done = false;
     let mut i = parent.id;
     while !done {
-        let node = parent.get_node_by_id(i);
+        let node = parent.get_node_by_id(i, false);
         if node.is_none() {
             done = true;
         } else {
@@ -187,8 +187,8 @@ pub fn calculate_cfg_per_programs(programs: &Vec<&Program>) -> Edges {
 
 #[cfg(test)]
 mod tests {
-    use crate::syntax_tree;
     use crate::program::Program;
+    use crate::syntax_tree;
 
     use super::*;
 

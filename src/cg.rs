@@ -70,7 +70,7 @@ fn get_enclosing_statement(parent: &ASTNode, id: usize) -> Option<usize> {
     let mut done = false;
     let mut i = id;
     while !done {
-        let node = parent.get_node_by_id(i);
+        let node = parent.get_node_by_id(i, true);
         if node.is_none() {
             done = true;
         } else {
@@ -85,7 +85,7 @@ fn get_enclosing_statement(parent: &ASTNode, id: usize) -> Option<usize> {
                 | ASTIdentifier::ForStatement | ASTIdentifier::DoStatement
                 | ASTIdentifier::SwitchStatement => {
                     if child.id < id && id <= child.children_until {
-                        return Some(child.id.clone());
+                        return Some(child.id);
                     }
                 }
                 _default => (),
@@ -132,7 +132,7 @@ fn create_func_table(parent: &ASTNode) -> HashMap<String, Class> {
     let mut id: usize = parent.id;
     let mut done = false;
     while !done {
-        let node = parent.get_node_by_id(id);
+        let node = parent.get_node_by_id(id, false);
         if node.is_none() {
             done = true;
         } else {
@@ -166,7 +166,7 @@ fn get_method_calls(parent: &ASTNode) -> Vec<Caller> {
     let mut id: usize = parent.id;
 
     while !done {
-        let node = parent.get_node_by_id(id);
+        let node = parent.get_node_by_id(id, true);
         if node.is_none() {
             done = true;
         } else {
@@ -198,7 +198,7 @@ fn get_imports(parent: &ASTNode) -> Vec<Import> {
     let mut id: usize = parent.id;
 
     while !done {
-        let node = parent.get_node_by_id(id);
+        let node = parent.get_node_by_id(id, false);
         if node.is_none() {
             done = true;
         } else {
@@ -209,6 +209,9 @@ fn get_imports(parent: &ASTNode) -> Vec<Import> {
                         node: node.unwrap().id,
                     };
                     imports.push(import);
+                },
+                ASTIdentifier::ClassDeclaration => {
+                    return imports;
                 }
                 _default => {}
             }
@@ -252,11 +255,11 @@ fn create_links(func_table: &HashMap<String, Class>, method_calls: &Vec<Caller>,
 }
 
 fn get_function_statements(program: &ASTNode, function: usize) -> Vec<usize> {
-    let fun_node = program.get_node_by_id(function).unwrap();
+    let fun_node = program.get_node_by_id(function, true).unwrap();
     let mut statements: Vec<usize> = vec![];
     let block = &fun_node.get_blocks();
     if block.first().is_some() {
-        let block_node = program.get_node_by_id(*block.first().unwrap()).unwrap();
+        let block_node = program.get_node_by_id(*block.first().unwrap(), false).unwrap();
         let first_statement = block_node.get_statements();
         if first_statement.first().is_some() {
             statements.push(*first_statement.first().unwrap());

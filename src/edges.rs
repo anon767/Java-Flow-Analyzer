@@ -7,12 +7,12 @@ pub type Edges = HashMap<usize, Vec<usize>>;
 
 pub fn show_edges(parent: &ASTNode, edges: &Edges) {
     edges.iter().for_each(|(key, value)| {
-        let node = parent.get_node_by_id(*key);
+        let node = parent.get_node_by_id(*key, true);
         if node.is_some() {
             println!("{:#?} -> {:#?}", node.unwrap().code,
                      value
                          .iter()
-                         .map(|x| parent.get_node_by_id(*x).
+                         .map(|x| parent.get_node_by_id(*x, true).
                              unwrap_or(&ASTNode::default()).code.clone())
                          .collect::<Vec<_>>());
         }
@@ -22,13 +22,13 @@ pub fn show_edges(parent: &ASTNode, edges: &Edges) {
 pub fn show_edges_multiple_programs(parents: &Vec<&Program>, edges: &Edges) {
     edges.iter().for_each(|(key, value)| {
         for parent in parents {
-            let node = &parent.tree.get_node_by_id(*key);
+            let node = &parent.tree.get_node_by_id(*key, true);
             if node.is_some() {
                 println!("{:#?} -> {:#?}", node.unwrap().code,
                          value
                              .iter()
                              .map(|x| Program::get_node_by_id_multiple_programs(parents, *x).
-                                 unwrap_or(&ASTNode::default()).code.clone())
+                                 unwrap_or((&ASTNode::default(), "".parse().unwrap())).0.code.clone())
                              .collect::<Vec<_>>());
             }
         }

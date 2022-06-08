@@ -110,6 +110,8 @@ pub struct ASTNode {
     pub code: String,
     pub children: Vec<ASTNode>,
     pub cache: HashMap<usize, ASTNode>,
+    pub line_start: usize,
+    pub line_end: usize,
 }
 
 impl Default for ASTNode {
@@ -121,6 +123,8 @@ impl Default for ASTNode {
             code: String::new(),
             children: Vec::new(),
             cache: Default::default(),
+            line_start: 0,
+            line_end: 0,
         }
     }
 }
@@ -157,13 +161,20 @@ impl PartialEq<Self> for ASTNode {
 }
 
 impl ASTNode {
-    pub fn get_node_by_id(self: &Self, id: usize) -> Option<&ASTNode> {
-        let mut nodes: Vec<&ASTNode> = vec![];
-        let mut deque: VecDeque<&ASTNode> = VecDeque::new();
-        deque.push_back(self);
+    pub fn get_node_by_id(self: &Self, id: usize, dfs: bool) -> Option<&ASTNode> {
         if self.cache.contains_key(&id) {
             return self.cache.get(&id);
         }
+        if dfs {
+            return self.get_node_by_id_dfs(id);
+        } else {
+            return self.get_node_by_id_bfs(id);
+        }
+    }
+
+    fn get_node_by_id_bfs(self: &Self, id: usize) -> Option<&ASTNode> {
+        let mut deque: VecDeque<&ASTNode> = VecDeque::new();
+        deque.push_back(self);
         while !deque.is_empty() {
             let node = deque.pop_front().unwrap();
 
@@ -173,7 +184,6 @@ impl ASTNode {
             if node.id > id {
                 continue;
             }
-            nodes.push(node);
 
             for child in &node.children {
                 deque.push_back(child);
@@ -181,9 +191,31 @@ impl ASTNode {
         }
         return None;
     }
-    pub(crate) fn build_cache(&mut self) {
+
+
+    fn get_node_by_id_dfs(self: &Self, id: usize) -> Option<&ASTNode> {
+        let mut stack: Vec<&ASTNode> = vec![];
+        stack.push(self);
+        while !stack.is_empty() {
+            let node = stack.pop().unwrap();
+
+            if node.id == id {
+                return Some(node);
+            }
+            if node.id > id {
+                continue;
+            }
+
+            for child in &node.children {
+                stack.push(child);
+            }
+        }
+        return None;
+    }
+
+    pub fn build_cache(&mut self) {
         for i in self.id..self.children_until {
-            let node = self.get_node_by_id(i).unwrap();
+            let node = self.get_node_by_id(i, true).unwrap();
             self.cache.insert(i, node.clone());
         }
     }

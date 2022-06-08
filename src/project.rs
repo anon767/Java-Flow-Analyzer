@@ -17,7 +17,7 @@ impl ProjectExt for Project<'_> {
             let parent = &program.tree;
             let mut i = parent.id;
             while !done {
-                let node = parent.get_node_by_id(i);
+                let node = parent.get_node_by_id(i, true);
                 if node.is_none() {
                     done = true;
                 } else {
@@ -34,7 +34,7 @@ impl ProjectExt for Project<'_> {
 
     fn find_statement(&self, predicate: &dyn Fn(&ASTNode) -> bool) -> Vec<&ASTNode> {
         let new_predicate = |node: &ASTNode| {
-            match node.identifier.clone() {
+            match &node.identifier {
                 ASTIdentifier::ExpressionStatement |
                 ASTIdentifier::LocalVariableDeclaration |
                 ASTIdentifier::ReturnStatement | ASTIdentifier::AssertStatement
