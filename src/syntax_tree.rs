@@ -203,7 +203,7 @@ impl ASTNode {
                 return Some(node);
             }
             if node.id > id {
-                continue;
+                return None;
             }
 
             for child in &node.children {
