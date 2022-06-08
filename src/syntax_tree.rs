@@ -102,7 +102,6 @@ impl FromStr for ASTIdentifier {
     }
 }
 
-
 #[derive(Clone)]
 pub struct ASTNode {
     pub id: usize,
@@ -162,12 +161,17 @@ impl ASTNode {
         let mut nodes: Vec<&ASTNode> = vec![];
         let mut deque: VecDeque<&ASTNode> = VecDeque::new();
         deque.push_back(self);
-
+        if self.cache.contains_key(&id) {
+            return self.cache.get(&id);
+        }
         while !deque.is_empty() {
             let node = deque.pop_front().unwrap();
 
             if node.id == id {
                 return Some(node);
+            }
+            if node.id > id {
+                continue;
             }
             nodes.push(node);
 
@@ -177,7 +181,12 @@ impl ASTNode {
         }
         return None;
     }
-
+    pub(crate) fn build_cache(&mut self) {
+        for i in self.id..self.children_until {
+            let node = self.get_node_by_id(i).unwrap();
+            self.cache.insert(i, node.clone());
+        }
+    }
     pub fn get_statements(self: &Self) -> Vec<usize> {
         let mut nodes: Vec<usize> = vec![];
         for child in &self.children {

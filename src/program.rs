@@ -1,5 +1,7 @@
 use std::str::{from_utf8, FromStr};
+
 use tree_sitter::{Node, Parser};
+
 use crate::syntax_tree::{ASTIdentifier, ASTNode};
 
 #[derive(Debug)]
@@ -17,7 +19,7 @@ impl Program {
 
     pub fn get_node_by_id_multiple_programs<'a>(programs: &'a Vec<&Program>, id: usize) -> Option<&'a ASTNode> {
         for program in programs {
-            let node = &program.tree.get_node_by_id( id);
+            let node = &program.tree.get_node_by_id(id);
             if node.is_some() {
                 return node.clone();
             }
@@ -35,7 +37,7 @@ impl Program {
             code: code.to_string(),
             children: vec![],
             children_until: 0,
-            cache: Default::default()
+            cache: Default::default(),
         };
         for child in 0..tree.child_count() {
             let child_node = self.traverse(tree.child(child).unwrap());
@@ -43,8 +45,12 @@ impl Program {
         }
 
         current.children_until = self.count;
+        if (current.children_until - current.id) > 2000 && (current.children_until - current.id) < 100000 {
+            current.build_cache();
+        }
         return current;
     }
+
 
     fn create_graph(&mut self, tree: tree_sitter::Tree) {
         self.tree = ASTNode {
@@ -53,7 +59,7 @@ impl Program {
             code: self.code.clone(),
             children: vec![],
             children_until: self.count,
-            cache: Default::default()
+            cache: Default::default(),
         };
 
 
@@ -61,6 +67,7 @@ impl Program {
             let child_node = self.traverse(tree.root_node().child(child).unwrap());
             self.tree.children.push(child_node);
         }
+        self.tree.build_cache();
         self.tree.children_until = self.count;
     }
     pub fn new(code: &str) -> Program {
@@ -72,7 +79,7 @@ impl Program {
                 identifier: ASTIdentifier::Root,
                 code: code.to_string(),
                 children: vec![],
-                cache: Default::default()
+                cache: Default::default(),
             },
             count: 0,
         };
@@ -98,7 +105,7 @@ impl Program {
                 identifier: ASTIdentifier::Root,
                 code: code.to_string(),
                 children: vec![],
-                cache: Default::default()
+                cache: Default::default(),
             },
             count,
         };

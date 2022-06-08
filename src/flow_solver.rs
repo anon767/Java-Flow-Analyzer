@@ -22,7 +22,7 @@ pub fn solve(edges: &Edges) -> HashSet<Flow> {
     let mut runtime = Crepe::new();
     for (x, ys) in edges {
         for y in ys {
-            flow_edges.push(FlowEdge(x.clone(), y.clone()));
+            flow_edges.push(FlowEdge(*x, *y));
         }
     }
     runtime.extend(flow_edges);

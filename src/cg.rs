@@ -140,15 +140,15 @@ fn create_func_table(parent: &ASTNode) -> HashMap<String, Class> {
                 ASTIdentifier::ClassDeclaration => {
                     let mut functions: HashMap<String, Function> = HashMap::new();
                     for func in get_functions(&node.unwrap()) {
-                        functions.insert(func.name.clone(), func);
+                        functions.insert((*func.name).to_string(), func);
                     }
                     let class = Class {
-                        name: get_class_name(node.unwrap().code.clone()),
+                        name: get_class_name((*node.unwrap().code).to_string()),
                         node: node.unwrap().id,
                         functions,
                     };
                     id = node.unwrap().children_until - 1;
-                    classes.insert(class.name.clone(), class);
+                    classes.insert((*class.name).to_string(), class);
                 }
                 _default => {
                     id += 1;
@@ -178,7 +178,7 @@ fn get_method_calls(parent: &ASTNode) -> Vec<Caller> {
                         continue;
                     }
                     let caller = Caller {
-                        name: get_function_name(node.unwrap().code.clone()),
+                        name: get_function_name((*node.unwrap().code).to_string()),
                         node: statement_id.unwrap(),
                     };
                     calls.push(caller);
@@ -205,7 +205,7 @@ fn get_imports(parent: &ASTNode) -> Vec<Import> {
             match node.unwrap().identifier.clone() {
                 ASTIdentifier::ImportDeclaration => {
                     let import = Import {
-                        name: get_import_name(node.unwrap().code.clone()),
+                        name: get_import_name((*node.unwrap().code).to_string()),
                         node: node.unwrap().id,
                     };
                     imports.push(import);
@@ -236,15 +236,15 @@ fn create_links(func_table: &HashMap<String, Class>, method_calls: &Vec<Caller>,
             }
             let function = class.functions.get(&caller.name);
             if function.is_some() {
-                edges.entry(caller.node.clone()).or_insert(vec![]).push(function.unwrap().first_statement_node.clone());
-                edges.entry(function.unwrap().first_statement_node.clone()).or_insert(vec![]).push(caller.node.clone());
+                edges.entry(caller.node).or_insert(vec![]).push(function.unwrap().first_statement_node);
+                edges.entry(function.unwrap().first_statement_node).or_insert(vec![]).push(caller.node);
             }
         }
     }
     if imports.is_none() {
         for (_, class) in func_table.iter() {
             for (_, func) in class.functions.iter() {
-                edges.entry(func.node.clone()).or_insert(vec![]).push(func.first_statement_node.clone());
+                edges.entry(func.node).or_insert(vec![]).push(func.first_statement_node);
             }
         }
     }
@@ -256,10 +256,10 @@ fn get_function_statements(program: &ASTNode, function: usize) -> Vec<usize> {
     let mut statements: Vec<usize> = vec![];
     let block = &fun_node.get_blocks();
     if block.first().is_some() {
-        let block_node = program.get_node_by_id(block.first().unwrap().clone()).unwrap();
+        let block_node = program.get_node_by_id(*block.first().unwrap()).unwrap();
         let first_statement = block_node.get_statements();
         if first_statement.first().is_some() {
-            statements.push(first_statement.first().unwrap().clone());
+            statements.push(*first_statement.first().unwrap());
         }
     }
     return statements;
