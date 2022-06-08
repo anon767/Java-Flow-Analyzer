@@ -64,16 +64,10 @@ fn main() {
 
     let config_file_path = &args.flag_path.split("/").collect::<Vec<&str>>()[..args.flag_path.split("/").count() - 1].join("/");
     let files = find_files(format!("{}/{}", config_file_path, config.project));
-    println!("creating");
     let programs = Program::new_list_from_files(files);
-    println!("creating done");
     let program_refs: Vec<&Program> = programs.iter().collect();
-    println!("CG");
     let mut edges = calculate_cg(&program_refs);
-    println!("CG Done");
-    println!("CFG");
     let cfg = calculate_cfg_per_programs(&program_refs);
-    println!("CFG Done");
     edges.merge(&cfg);
     let reachable = flow_solver::solve(&edges);
     let mut analysis_nodes: HashMap<String, Vec<usize>> = HashMap::new();

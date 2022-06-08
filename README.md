@@ -5,7 +5,7 @@ Rustparse analyzes Semantic Flows of Java Programs.
 ## How Does it Work?
 
 As the name suggests, Rustparse is written in Rust. It uses the tree-sitter C++ binding to 
-obtain the AST per java files. The Call and Control Flow edges are calculated on statement-level
+obtain the AST per java file. The Call and Control Flow edges are calculated on statement-level
 for easy querying.
 The transitive closure of the Flow Graph is calculated using a logical programming Language written in Rust called *Crepe* .
 
