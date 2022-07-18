@@ -1,6 +1,6 @@
-# Rustparse
+# Java-Flow-Analyzer
 
-Rustparse analyzes Semantic Flows of Java Programs.
+Java-Flow-Analyzer analyzes Semantic Flows of Java Programs.
 
 ## How Does it Work?
 
